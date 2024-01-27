@@ -1,7 +1,10 @@
 package main
 
+// TODO: refactor it? idk :(
+
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/adieos/go-fiber-postgres/model"
@@ -12,16 +15,54 @@ import (
 )
 
 type Book struct {
-	author    string
-	title     string
-	publisher string
+	Author    string `json:"author"`
+	Title     string `json:"title"`
+	Publisher string `json:"publisher"`
 }
 
 type Repository struct {
-	DB *gorm.DB
+	db *gorm.DB
+}
+
+func (r *Repository) CreateBookHandler(ctx *fiber.Ctx) error {
+	book := Book{}
+
+	err := ctx.BodyParser(&book)
+	if err != nil || book.Author == "" || book.Publisher == "" || book.Title == "" {
+		ctx.Status(http.StatusUnprocessableEntity).JSON(
+			fiber.Map{"message": "Unable process response"})
+		log.Println("Error 422: ", err)
+		return err
+	}
+
+	err = r.db.Create(&book).Error
+	if err != nil {
+		ctx.Status(http.StatusBadRequest).JSON(
+			fiber.Map{"message": "Unable to create book"})
+		log.Println("Error 400: ", err)
+		return err
+	}
+
+	ctx.Status(http.StatusOK).JSON(
+		fiber.Map{"message": "Book created successfully"})
+	return nil
+}
+
+// func (r *Repository) PutBookListener(ctx *fiber.Ctx) error{
+
+// }
+
+func (r *Repository) SetRoutes(app *fiber.App) {
+	api := app.Group("/api")
+	api.Post("/books", r.CreateBookHandler)
+	// api.Put("/books/:id", r.PutBookListener)
+	// api.Delete("/books/:id", r.DeleteBookListener)
+	// api.Get("/books", r.GetAllBooksListener)
+	// api.Get("/books/:id", r.GetBookByIDListener)
 }
 
 func main() {
+	// load env variables
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal(err)
@@ -42,14 +83,14 @@ func main() {
 	if err != nil {
 		log.Fatal("could not load database")
 	}
-	err := model.MigrateDB(db)
+	err = model.MigrateDB(db)
 	if err != nil {
 		log.Fatal("could not migrate database")
 	}
 
 	r := Repository{db}
-
 	app := fiber.New()
+	r.SetRoutes(app) // NOTE: !!!
 	app.Listen(":8080")
 
 }
