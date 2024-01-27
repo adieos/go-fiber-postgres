@@ -3,6 +3,7 @@ package main
 // TODO: UPDATE LISTENER AND REFACTOR IF POSSIBLE !!!
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -203,6 +204,5 @@ func main() {
 	r := Repository{db}
 	app := fiber.New()
 	r.SetRoutes(app) // NOTE: !!!
-	app.Listen(":8080")
-
+	app.Listen(fmt.Sprintf(":%s", os.Getenv("APP_PORT")))
 }
