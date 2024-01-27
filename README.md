@@ -17,7 +17,7 @@ Welcome to the Bookstore API, a simple yet powerful solution for storing and ret
 ## Getting Started
 
 1. Clone the repository.
-2. Configure your PostgreSQL database settings in the `config.yaml` file.
+2. Configure your PostgreSQL database settings in the `.env` file.
 3. Run the application using `go run main.go`.
 
 ## API Endpoints
@@ -25,13 +25,14 @@ Welcome to the Bookstore API, a simple yet powerful solution for storing and ret
 - `POST /api/books`: Add a new book to the database.
 - `GET /api/books/:id`: Retrieve details of a specific book by ID.
 - `GET /api/books`: Retrieve a list of all books.
-- ... (add more endpoints as needed)
+- `PUT /api/books/:id`: Update details of a specific book by ID.
+- `DELETE /api/books/:id`: Delete a specific book by ID.
 
 ## Example Usage
 
 ```bash
 # Add a new book
-curl -X POST -H "Content-Type: application/json" -d '{"title": "Sample Book", "author": "John Doe", "publisher": "Sample Publisher"}' http://localhost:3000/api/books
+curl -X POST -H "Content-Type: application/json" -d '{"title": "AC Forsaken", "author": "Anton Gill", "publisher": "Penguin Publishing"}' http://localhost:8080/api/books
 
 # Retrieve book details by ID
-curl http://localhost:3000/api/books/1
+curl -X GET http://localhost:8080/api/books/1
